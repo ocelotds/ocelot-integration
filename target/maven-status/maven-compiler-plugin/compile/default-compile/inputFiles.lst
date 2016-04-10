@@ -1,0 +1,15 @@
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/topic/StringMin5TopicMessageController.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/topic/SpecificTopicAC.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/ejb/EjbStateless.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/cdi/CdiSingletonBean.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/objects/WithConstraint.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/cdi/CdiRequestBean.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/topic/GlobalTopicAC.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/spring/SpringPrototypeBean.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/cdi/CdiSessionBean.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/objects/Result.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/spring/SpringSessionBean.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/objects/MethodException.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/UnreachableServices.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/spring/ApplicationContextConfig.java
+/home/hhfrancois/NetBeansProjects/ocelot/ocelot-test/src/main/java/org/ocelotds/ocelot/spring/SpringSingletonBean.java

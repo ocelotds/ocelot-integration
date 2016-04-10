@@ -1,0 +1,6 @@
+org.ocelotds.ocelot
+org.ocelotds.ocelot.cdi
+org.ocelotds.ocelot.ejb
+org.ocelotds.ocelot.objects
+org.ocelotds.ocelot.spring
+org.ocelotds.ocelot.topic

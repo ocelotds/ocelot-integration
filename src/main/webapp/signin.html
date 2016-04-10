@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Signin</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="signin.css" rel="stylesheet">
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css">
+	</head>
+	<body>
+		<div class="container">
+			<form class="form-signin" action="j_security_check" method="POST">
+				<h2 class="form-signin-heading">Please sign in</h2>
+				<label for="j_username" class="sr-only">Login</label>
+				<input id="j_username" name="j_username" placeholder="demo" class="form-control" required autofocus>
+				<label for="j_password" class="sr-only">Password</label>
+				<input id="j_password" name="j_password" placeholder="demo" type="password" class="form-control" required>
+				<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+			</form>
+		</div> <!-- /container -->
+	</body>
+</html>

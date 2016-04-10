@@ -1,0 +1,6 @@
+/**/nb-configuration.xml
+/**/target/*
+/**/nbproject/
+/**/node_modules/*
+/**/derby.log
+/target/

@@ -1,1 +1,0 @@
-var cdiSessionBean=(function(){'use strict';var _ds="org.ocelotds.ocelot.cdi.CdiSessionBean";return{getValue:function(){return OcelotPromiseFactory.createPromise(_ds,"a12b47a8d87c97d42386b804348b9c17_"+JSON.stringify([]).md5(),"getValue",[],[]);}};})();

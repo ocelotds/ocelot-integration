@@ -8,7 +8,6 @@ import org.ocelotds.annotations.OcelotLogger;
 import org.ocelotds.security.JsTopicMessageController;
 import org.slf4j.Logger;
 import org.ocelotds.annotations.JsTopicControl;
-import org.ocelotds.annotations.JsTopicControls;
 import org.ocelotds.security.NotRecipientException;
 import org.ocelotds.security.UserContext;
 
@@ -16,11 +15,8 @@ import org.ocelotds.security.UserContext;
  * 
  * @author hhfrancois
  */
-@JsTopicControls({
-	@JsTopicControl("string5topic"),
-	@JsTopicControl("string5topicBis")
-})
-public class StringMin5TopicMessageController implements JsTopicMessageController<String> {
+@JsTopicControl("string10topic")
+public class StringMin10TopicMessageController implements JsTopicMessageController<String> {
 
 	@Inject
 	@OcelotLogger
@@ -28,8 +24,8 @@ public class StringMin5TopicMessageController implements JsTopicMessageControlle
 	
 	@Override
 	public void checkRight(UserContext ctx, String topic, String payload) throws NotRecipientException {
-		boolean access = (payload!=null)?payload.length()>=5:false;
-		System.out.println("CHECK payload lengh >= 5 : "+access+" topic : "+topic);
+		boolean access = (payload!=null)?payload.length()>=10:false;
+		System.out.println("CHECK payload lengh >= 10 : "+access+" topic : "+topic);
 		logger.debug("Check access to topic {} : access = {}", topic, access);
 		if(!access) {
 			throw new NotRecipientException(ctx.getPrincipal().getName());

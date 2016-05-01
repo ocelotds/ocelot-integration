@@ -44,6 +44,7 @@ import org.ocelotds.ocelot.objects.MethodException;
 import org.ocelotds.ocelot.objects.Result;
 import org.ocelotds.ocelot.topic.SpecificTopicAC;
 import org.ocelotds.ocelot.objects.WithConstraint;
+import org.ocelotds.ocelot.topic.MultiSpecificTopicAC;
 import org.ocelotds.security.JsTopicAccessController;
 import org.ocelotds.security.JsTopicCtrlAnnotationLiteral;
 
@@ -73,6 +74,10 @@ public class CdiRequestBean {
 		return myTopicAccessControllers.select(new JsTopicCtrlAnnotationLiteral("mytopic")).get();
 	}
 
+	@Inject
+	@Any
+	private MultiSpecificTopicAC multiSpecificTopicAC;
+
 	public String getCDIPrincipalName() {
 		return principal.getName();
 	}
@@ -83,6 +88,10 @@ public class CdiRequestBean {
 
 	public void setSpecificTopicAccess(boolean b) {
 		((SpecificTopicAC) getJsTopicAccessController()).setAccess(b);
+	}
+
+	public void setMultiSpecificTopicAccess(boolean b) {
+		multiSpecificTopicAC.setAccess(b);
 	}
 
 	public void getVoid() {
@@ -267,6 +276,11 @@ public class CdiRequestBean {
 
 	@JsTopic(value = "string5topicBis")
 	public String sendToString5topicBis(String message) {
+		return message;
+	}
+
+	@JsTopic(value = "string10topic")
+	public String sendToString10topic(String message) {
 		return message;
 	}
 

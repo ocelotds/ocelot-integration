@@ -370,31 +370,34 @@ QUnit.test(".methodRemoveAllCache()", function (assert) {
 	});
 });
 QUnit.test(".onMessage()", function (assert) {
-	var timer, done = assert.async(), sub = new Subscriber("mytopic");
-	assert.equal(sub.topic, "mytopic", "topic name accessible");
-	sub.event(function (evt) {
-		assert.equal(evt.type, "RESULT", "Subscription to 'mytopic' : ok.");
-		cdiRequestBean.publish("mytopic", 1).event(function (evt) {
-			assert.equal(evt.type, "RESULT", "Call publish method : ok.");
+	var timer, done = assert.async(), sub, topic = getGuid();
+	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
+		sub= new Subscriber(topic).event(function (evt) {
+			assert.equal(evt.type, "RESULT", "Subscription to '"+topic+"' : ok.");
+			assert.equal(evt.response, 1, "One subscriber.");
+			cdiRequestBean.publish(topic, 1).event(function (evt) {
+				assert.equal(evt.type, "RESULT", "Call publish "+topic+" method : ok.");
+			});
+		}).message(function (msg) {
+			assert.equal(msg, "Message From server 1", "Receive message in '"+topic+"' : ok.");
+			sub.unsubscribe().event(function (evt) {
+				assert.equal(evt.type, "RESULT", "Unsubscription to '"+topic+"' : ok.");
+				window.clearTimeout(timer);
+				done();
+			});
 		});
-	}).message(function (msg) {
-		assert.equal(msg, "Message From server 1", "Receive message in 'mytopic' : ok.");
-		sub.unsubscribe().event(function (evt) {
-			assert.equal(evt.type, "RESULT", "Unsubscription to 'mytopic' : ok.");
-			window.clearTimeout(timer);
-			done();
-		});
+		assert.equal(sub.topic, topic, "topic name '"+topic+"' is accessible");
 	});
 	timer = setTimeout(function () {
 		assert.equal(0, 1, "Receive 0 messages");
-		sub.unsubscribe("mytopic").event(function (evt) {
-			assert.equal(evt.type, "RESULT", "Unsubscription to 'mytopic' : ok.");
+		sub.unsubscribe(topic).event(function (evt) {
+			assert.equal(evt.type, "RESULT", "Unsubscription to '"+topic+"' : ok.");
 			done();
 		});
 	}, 500);
 });
 QUnit.test(".onMessages()", function (assert) {
-	var sub, result = 0, expected = nbMsgToBroadcast, timer, done, i, query = location.search, params = query.split("&"), timer;
+	var sub, result = 0, expected = nbMsgToBroadcast, timer, done, i, query = location.search, params = query.split("&"), timer, topic = getGuid();
 	var checkResult = function() {
 		if(timer) clearTimeout(timer);
 		assert.equal(result, expected, "Receive " + result + "/" + expected + " messages");
@@ -414,67 +417,107 @@ QUnit.test(".onMessages()", function (assert) {
 	}
 	timer = setTimeout(checkResult, 50 * expected);
 	done = assert.async();
-	sub = new Subscriber("mytopic").event(function (evt) {
-		assert.equal(evt.type, "RESULT", "Subscription to 'mytopic' : ok.");
-		cdiRequestBean.publish("mytopic", expected).event(function (evt) {
-			assert.equal(evt.type, "RESULT", "Call publish(" + expected + ") method : ok.");
+	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
+		sub = new Subscriber(topic).event(function (evt) {
+			assert.equal(evt.type, "RESULT", "Subscription to '"+topic+"' : ok.");
+			cdiRequestBean.publish(topic, expected).event(function (evt) {
+				assert.equal(evt.type, "RESULT", "Call publish to '"+topic+"'(" + expected + ") method : ok.");
+			});
+		}).message(function (msg) {
+			result++;
+			assert.ok(true, "" + msg + " : (" + result + ")");
+			if (result === expected) {
+				checkResult();
+			}
 		});
-	}).message(function (msg) {
-		result++;
-		assert.ok(true, "" + msg + " : (" + result + ")");
-		if (result === expected) {
-			checkResult();
-		}
 	});
 });
 QUnit.test(".testGlobalTopic()", function (assert) {
 	var sub, timer, topic = "GlobalTopic", expected = "my message", done = assert.async();
-	sub = new Subscriber(topic).event(function (evt) {
-		assert.equal(evt.type, "RESULT", "Subscription to '" + topic + "' : ok.");
-		cdiRequestBean.sendToGlobalTopic(expected).event(function (evt) {
-			assert.equal(evt.type, "RESULT", "Call sendToGlobalTopic(" + expected + ") method : ok.");
-			sub.message(function (msg) {
-				window.clearTimeout(timer);
-				assert.equal(msg, expected, "Receive msg in GlobalTopic : " + msg);
-				done();
+	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
+		sub = new Subscriber(topic).event(function (evt) {
+			assert.equal(evt.type, "RESULT", "Subscription to '" + topic + "' : ok.");
+			cdiRequestBean.sendToGlobalTopic(expected).event(function (evt) {
+				assert.equal(evt.type, "RESULT", "Call sendToGlobalTopic(" + expected + ") method : ok.");
+				sub.message(function (msg) {
+					window.clearTimeout(timer);
+					assert.equal(msg, expected, "Receive msg in GlobalTopic : " + msg);
+					done();
+				});
 			});
+			timer = setTimeout(function () {
+				assert.ok(false, "Timeout, didn't receive msg in " + topic + " subscriber.");
+				done();
+			}, 200);
 		});
-		timer = setTimeout(function () {
-			assert.ok(false, "Timeout, didn't receive msg in " + topic + " subscriber.");
-			done();
-		}, 200);
 	});
 });
 QUnit.test(".testSpecificTopic()", function (assert) {
-	var sub, timer, topic = "MyTopic", expected = "my message", done = assert.async();
-	sub = new Subscriber(topic).event(function (evt) {
-		assert.equal(evt.type, "RESULT", "Subscription to '" + topic + "' : ok.");
-		cdiRequestBean.sendToSpecificTopic(expected, topic).event(function (evt) {
-			assert.equal(evt.type, "RESULT", "Call sendToSpecificTopic(" + expected + ", " + topic + ")");
-			sub.message(function (msg) {
-				window.clearTimeout(timer);
-				assert.equal(msg, expected, "Receive msg in SpecificTopic(" + topic + ") : " + msg);
+	var sub, timer, topic = getGuid(), expected = "my message", done = assert.async();
+	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
+		sub = new Subscriber(topic).event(function (evt) {
+			assert.equal(evt.type, "RESULT", "Subscription to '" + topic + "' : ok.");
+			cdiRequestBean.sendToSpecificTopic(expected, topic).event(function (evt) {
+				assert.equal(evt.type, "RESULT", "Call sendToSpecificTopic(" + expected + ", " + topic + ")");
+				sub.message(function (msg) {
+					window.clearTimeout(timer);
+					assert.equal(msg, expected, "Receive msg in SpecificTopic(" + topic + ") : " + msg);
+					sub.unsubscribe();
+					done();
+				});
+			});
+			timer = setTimeout(function () {
+				assert.ok(false, "Timeout, didn't receive msg in " + topic + " subscriber.");
 				sub.unsubscribe();
 				done();
-			});
+			}, 200);
 		});
-		timer = setTimeout(function () {
-			assert.ok(false, "Timeout, didn't receive msg in " + topic + " subscriber.");
-			sub.unsubscribe();
-			done();
-		}, 200);
 	});
 });
 QUnit.test(".testGlobalTopicAccess()", function (assert) {
-	var sub, done = assert.async();
+	var sub, done = assert.async(), topic = getGuid();
 	cdiRequestBean.setGlobalTopicAccess(false).then(function () {
-		new Subscriber("GlobalTopic").event(function (evt) {
-			assert.equal(evt.type, "FAULT", "Subscription to 'GlobalTopic' failed : ok.");
-			new Subscriber("mytopic").event(function (evt) {
-				assert.equal(evt.type, "FAULT", "Subscription to 'mytopic' failed : ok.");
-				cdiRequestBean.setGlobalTopicAccess(true).then(function() {
-					sub = new Subscriber("mytopic").event(function (evt) {
-						assert.equal(evt.type, "RESULT", "Subscription to 'mytopic' : ok.");
+		new Subscriber(topic).event(function (evt) {
+			assert.equal(evt.type, "FAULT", "Subscription to '"+topic+"' failed : ok.");
+			cdiRequestBean.setGlobalTopicAccess(true).then(function() {
+				sub = new Subscriber(topic).event(function (evt) {
+						assert.equal(evt.type, "RESULT", "Subscription to '"+topic+"' : ok.");
+						sub.unsubscribe();
+						done();
+				});
+			});
+		});
+	});
+});
+QUnit.test(".testSpecificTopicAccess()", function (assert) {
+	var sub, done = assert.async(), topic = getGuid();
+	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
+		cdiRequestBean.setSpecificTopicAccess(false).then(function () {
+			new Subscriber(topic).event(function (evt) {
+				assert.equal(evt.type, "RESULT", "Subscription to '"+topic+"' : ok.");
+				new Subscriber("mytopic").event(function (evt) {
+					assert.equal(evt.type, "FAULT", "Subscription to 'mytopic' failed : ok.");
+					cdiRequestBean.setSpecificTopicAccess(true).then(function () {
+						sub = new Subscriber("mytopic").event(function (evt) {
+							assert.equal(evt.type, "RESULT", "Subscription to 'mytopic' : ok.");
+							sub.unsubscribe();
+							done();
+						});
+					});
+				});
+			});
+		});
+	});
+});
+QUnit.test(".testMultiSpecificTopicAccess('mytopic1')", function (assert) {
+	var sub, done = assert.async();
+	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
+		cdiRequestBean.setMultiSpecificTopicAccess(false).then(function () {
+			new Subscriber("mytopic1").event(function (evt) {
+				assert.equal(evt.type, "FAULT", "Subscription to 'mytopic1' failed : ok.");
+				cdiRequestBean.setMultiSpecificTopicAccess(true).then(function () {
+					sub = new Subscriber("mytopic1").event(function (evt) {
+						assert.equal(evt.type, "RESULT", "Subscription to 'mytopic1' : ok.");
 						sub.unsubscribe();
 						done();
 					});
@@ -483,16 +526,19 @@ QUnit.test(".testGlobalTopicAccess()", function (assert) {
 		});
 	});
 });
-QUnit.test(".testSpecificTopicAccess()", function (assert) {
+QUnit.test(".testMultiSpecificTopicAccess('mytopic2')", function (assert) {
 	var sub, done = assert.async();
-	cdiRequestBean.setSpecificTopicAccess(false).then(function () {
-		new Subscriber("mytopic").event(function (evt) {
-			assert.equal(evt.type, "FAULT", "Subscription to 'GlobalTopic' failed : ok.");
-			sub = new Subscriber("GlobalTopic").event(function (evt) {
-				assert.equal(evt.type, "RESULT", "Subscription to 'mytopic' : ok.");
-				cdiRequestBean.setSpecificTopicAccess(true);
-				sub.unsubscribe();
-				done();
+	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
+		cdiRequestBean.setMultiSpecificTopicAccess(false).then(function () {
+			new Subscriber("mytopic2").event(function (evt) {
+				assert.equal(evt.type, "FAULT", "Subscription to 'mytopic2' failed : ok.");
+				cdiRequestBean.setMultiSpecificTopicAccess(true).then(function () {
+					sub = new Subscriber("mytopic2").event(function (evt) {
+						assert.equal(evt.type, "RESULT", "Subscription to 'mytopic2' : ok.");
+						sub.unsubscribe();
+						done();
+					});
+				});
 			});
 		});
 	});
@@ -517,6 +563,19 @@ QUnit.test(".testMessageAccessBis()", function (assert) {
 		cdiRequestBean.sendToString5topicBis("abcdef");
 	}).message(function(msg) {
 		assert.equal(msg, "abcdef");
+	});
+	setTimeout(function() {
+		sub.unsubscribe();
+		done();
+	}, 1000);
+});
+QUnit.test(".testMessageAccess10()", function (assert) {
+	var sub, done = assert.async();
+	sub = new Subscriber("string10topic").event(function (evt) {
+		cdiRequestBean.sendToString10topic("abc");
+		cdiRequestBean.sendToString10topic("abcdefabcdef");
+	}).message(function(msg) {
+		assert.equal(msg, "abcdefabcdef");
 	});
 	setTimeout(function() {
 		sub.unsubscribe();
@@ -988,4 +1047,12 @@ QUnit.test(".getCount()", function (assert) {
 		getCount();
 	});
 });
+
+function S4() {
+	 return (((1+Math.random())*0x10000)|0).toString(16).substring(1); 
+}
+// generate an unique ident
+function getGuid() {
+	return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+}
 

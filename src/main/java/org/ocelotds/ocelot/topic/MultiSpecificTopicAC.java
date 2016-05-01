@@ -4,6 +4,8 @@
 package org.ocelotds.ocelot.topic;
 
 import javax.enterprise.context.ApplicationScoped;
+import org.ocelotds.annotations.JsTopicControl;
+import org.ocelotds.annotations.JsTopicControls;
 import org.ocelotds.security.JsTopicAccessController;
 import org.ocelotds.security.UserContext;
 import org.slf4j.Logger;
@@ -14,9 +16,13 @@ import org.slf4j.LoggerFactory;
  * @author hhfrancois
  */
 @ApplicationScoped
-public class GlobalTopicAC implements JsTopicAccessController {
+@JsTopicControls({
+	@JsTopicControl("mytopic1"),
+	@JsTopicControl("mytopic2")
+})
+public class MultiSpecificTopicAC implements JsTopicAccessController {
 
-	private static Logger logger = LoggerFactory.getLogger(GlobalTopicAC.class);
+	private static Logger logger = LoggerFactory.getLogger(MultiSpecificTopicAC.class);
 
 	private boolean access = true;
 
@@ -30,9 +36,9 @@ public class GlobalTopicAC implements JsTopicAccessController {
 
 	@Override
 	public void checkAccess(UserContext ctx, String topic) throws IllegalAccessException {
-		logger.debug("Check mytopic access to topic {} : access = {}", topic, access);
+		logger.debug("Check access to topic {} : access = {}", topic, access);
 		if (!access) {
-			throw new IllegalAccessException("mytopic access is set to false");
+			throw new IllegalAccessException(topic+" access is set to false");
 		}
 	}
 

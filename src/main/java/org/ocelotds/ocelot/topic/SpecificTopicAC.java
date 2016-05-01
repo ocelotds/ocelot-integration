@@ -32,7 +32,7 @@ public class SpecificTopicAC implements JsTopicAccessController {
 
 	@Override
 	public void checkAccess(UserContext ctx, String topic) throws IllegalAccessException {
-		logger.warn("Check mytopic access to topic {} : access = {}", topic, access);
+		logger.debug("Check mytopic access to topic {} : access = {}", topic, access);
 		if (!access) {
 			throw new IllegalAccessException("mytopic access is set to false");
 		}

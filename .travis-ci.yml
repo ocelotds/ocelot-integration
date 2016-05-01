@@ -1,0 +1,26 @@
+sudo: false
+env:
+  global:
+    # VPS_PASSWORD
+    - secure: "STPrtsqSqT3N8RNEekE+NOst2MCtTIgZg959Xb9fkS7lf1yynd8HvhOQMCC+6s+yJH0i3xcjK5GO6cnBxlsLNbPfqX6xKDDrBf0XhE7dN04+jiOGcmcZ2i1FShxA41V9Qvmw/iJoR58K9Yr9QU0sqjJeOi0LsB5TFGrlGYHYPatLVwPDJw4ccJAl56DRIawLmXcnphPep3/6FzrjpoAGarkCZDIxYLQy93vZr5h+eZSAhlY5Ty8NI/YnO1kik+3C0Pe6wf8J1AhXBOYpcvGgUMnS5r+BJUI1uHFa8aqtKpG2oXZ8yHDlfburI4z/d0Gh5KZBm6PLibeo0fN67cCHrEzoJRpH4Oxn4W3DAyG5N3rgfcbFh9odlrT6E4pJIzLnEVjqCTBWQQ+b0wfXCjIDyhdzfczz7ITa8KgoFAPi3ENEJX+1wJXVw5JC8YMVjRBGlkqf3z7MzdkHb1FD315PIzTCBZDlVFeVEvspxenq2hiTuvGsgF0PIUPxl00/zSRn4kNxhSoSTfaXVajD80ScFYmWPOngzP6vBiW/EBNeNPc8ruorU2S2Etc4CmsO7TJwMaXG1bqMav8/qycvuJboN+8dhgZiDTpvPy9bv7Hn8qP7POxw0ZDjt3WvVneDcIKVGVmKTgcxoMuIgFntGttvzJtFM4hTc2pH2pm/CPSkRNY="
+    # VPS_LOGIN
+    - secure: "nvukMVMczHbAkPeXN2i+HLiqVXH1hlE61xKQbP597/BUTJVkYmuZwKf7C3OcAOX5goZLtx1JM3KsIP79aHm+HZNAmgWvPL596ZZUIDg1Es4zJqaYh4H96mAqt1+ptuM9lnDtOgHTHgvFmsaGP/IlkeiLH5xkKDdTosvHg1pmMu0VhBaYNSxjYwPGDMPBknt4G62qgOxWrWnTeY0VMWAxaz7cTwch4SuGHer9fDdK4ULbK8H1o+UL4Uwd8yHsVyBrGX6Di8DgcEMmIDXVYjqo6YdtFYnk5b/gzn4fWTDcvYTXdswPRJFXvZXejOxjcaSblRVBHshGm/jpPYCLnQyQEaLeVmWX3/rPqffx9dyiq2z4AB9FLh6bOahubz0UyiELTNa+ryXoP4pOw5L27re5BmnbzsulMZCcS7JiFpV4j0FQuHU5u2XzvH/uHWKrYidlhuVixz3wukha2DRywrQdSIWIW7kStqQt50bNBpHOwoSzVwwUhE5NGP7gHmWwuaLjqzE9pNX5ZxczP3GC/1U6OsQZQ0E0hOAvbipV8O86OQGikl3WZWr3JES9MvMQgwCTP8tdB2lxb01esXpXlK8hiRI+yoUE/JsowrXNLmFbiIy7qx9vlrlO3Ut4PdpU1MwfbzrOWn50V59gyDSTy/b4uWSRjGE6hr+p52MJqpwoYn0="
+    # VPS_HOST
+    - secure: "F+QviHgDgxNeuTVex5IYVsHuEo5lteSVvTGmINnc2bN8MJT33TFrl2/5k8fHGEOfCftuww/mxvAnsOuy+lTfuCiLunJrpPQo5mveALEwa7whqdEare/seSW0m5EHsoJ4CR3WXIpRBJiCtMkQY0+ak0ULC63So1XExOoY4yIZHaoCR8xhgUq5t2MS3ctdSpBqF265WkI8WGKV8OCi4c6eSSkfFSIeE8ZysEXyoqZbB6nhqIYrrfaQQ12vT2GahQ2STF5+TKC6t9IL/bIn8xJeRI/bqmk9NFyUHn4hTcxnwHEAvRVsT15hoqeqDImExLiGC9uWfRAKVCqzwIfPNbW5RqEI3IrgtzAte/tqyMCt4QN6jWaeyfJwhiK/9eFaSHvd68wANCVAnWl9sVKu73WAhgaFRw5JOjabKO2ZrS1wVdCLmhz503ZvN2cVsqzpgvYc+6vzay7HVIhIKNTExX0c35na3rz2+QxQ0N2TIq/T/98cedexRELfYqiKn/fs8kFlPOnk3Kj+qCa7NkoTfa4w3MU30GCdpghxIdrji8zeh0830jAxPo/sE3ScesrMRqUweE9jit9V+cDA3d319xJiX0Q4dL7hTi6406yoE0o7rUgDt2JqemPG0O3CpwlE91NqSJ5juBLNfgcsQfZcxd11ioXleBnKf22zgLEhPLvP54Y="
+branches:
+  only:
+   - master
+addons:
+  apt:
+    packages:
+      - sshpass
+  
+language: java
+jdk: oraclejdk7
+install: mvn install -DskipTests=true
+after_success:
+  - sshpass -p $VPS_PASSWORD scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no target/ocelot-integration*.war $VPS_LOGIN@$VPS_HOST:/root/autodeploy/ocelot-integration.war
+#  - "curl -H \"Content-Type: application/json\" --data '{\"build\": true}' -X POST https://registry.hub.docker.com/u/hhfrancois/ocelotds.org/trigger/a3344f80-4bed-406c-9e6c-bac48428c0cf/"
+#  - ls target/ocelotds*.war
+
+#  - sshpass -p $pwdvps ssh $loginvps@$hostvps "rm /opt/glassfish4/glassfish/domains/domain1/autodeploy/ocelotds.war"

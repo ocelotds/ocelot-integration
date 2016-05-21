@@ -3,20 +3,28 @@ var nbMsgToBroadcast = 500;
 ocelotController.cacheManager.clearCache();
 QUnit.module("unreachableServices");
 QUnit.test(".getVoid()", function (assert) {
-	var done = assert.async(), srv = {
-		ds: "org.ocelotds.test.UnreachableServices",
-		getVoid: function () {
-			var op = "getVoid";
-			var id = "9aa2b06f2181c16f6ce2480967bd6c9d_" + JSON.stringify([]).md5();
-			return OcelotPromiseFactory.createPromise(this.ds, id, op, [], []);
-		}
+		var done = assert.async(),
+		id = "9aa2b06f2181c16f6ce2480967bd6c9d_" + JSON.stringify([]).md5(),
+		ds = "org.ocelotds.test.UnreachableServices",
+		op = "getVoid",
+		promise = _create(ds, id, op, [], []);
+		promise.event(function (evt) {
+			assert.equal(evt.type, "FAULT", "" + evt.response.classname + " : " + evt.response.message);
+			done();
+		});
+		function _create(e,t,n,s,r){return function(e,t,n,s,r){function i(){if(o)if("MESSAGE"!==o.type){for(;f.length;)f.shift()(o);switch(o.type){case"RESULT":for(;a.length;)a.shift()(o.response);break;case"CONSTRAINT":for(;u.length;)u.shift()(o.response);break;case"FAULT":for(c=o.response,console.error(c.classname+"("+c.message+")");h.length;)h.shift()(c)}}else g.forEach(function(e){e(o.response)})}var c,o=null,a=[],h=[],u=[],f=[],g=[],p={id:t,key:t,dataservice:e,operation:n,args:r,argNames:s,cacheIgnored:!1,t:(new Date).getTime(),set response(e){o=e,i()},ignoreCache:function(e){return this.cacheIgnored=e,this},then:function(e,t){return e&&a.push(e),t&&h.push(t),i(),this},"catch":function(e){return e&&h.push(e),i(),this},constraint:function(e){return e&&u.push(e),i(),this},event:function(e){return e&&f.push(e),i(),this},message:function(e){return e&&g.push(e),i(),this},get json(){return{id:this.id,ds:this.dataservice,op:this.operation,argNames:this.argNames,args:this.args}}},d=document.createEvent("Event");return d.initEvent("call",!0,!1),d.promise=p,setTimeout(function(){document.dispatchEvent(d)},1),p}(e,t,n,s,r)}	var done = assert.async(), srv = {
 	};
-	srv.getVoid().event(function (evt) {
-		assert.equal(evt.type, "FAULT", "" + evt.response.classname + " : " + evt.response.message);
+});
+QUnit.module("cdiRequestBean");
+QUnit.test(".methodWithNum(bad_arg)", function (assert) {
+	var done = assert.async();
+	cdiRequestBean.methodWithNum("badarg").event(function (evt) {
+		assert.equal(evt.type, "FAULT", "A call with bad arg throw an exception");
+		assert.equal(evt.response.classname, "java.lang.NoSuchMethodException", "Method should be not found");
+		assert.equal(evt.response.message, "org.ocelotds.ocelot.cdi.CdiRequestBean.methodWithNum", "Message should be the bean name and method name");
 		done();
 	});
 });
-QUnit.module("cdiRequestBean");
 QUnit.test(".getVoid()", function (assert) {
 	var done = assert.async();
 	cdiRequestBean.getVoid().event(function (evt) {

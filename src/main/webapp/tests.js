@@ -449,6 +449,7 @@ QUnit.test(".testGlobalTopic()", function (assert) {
 				sub.message(function (msg) {
 					window.clearTimeout(timer);
 					assert.equal(msg, expected, "Receive msg in GlobalTopic : " + msg);
+					sub.unsubscribe();
 					done();
 				});
 			});
@@ -497,17 +498,18 @@ QUnit.test(".testGlobalTopicAccess()", function (assert) {
 	});
 });
 QUnit.test(".testSpecificTopicAccess()", function (assert) {
-	var sub, done = assert.async(), topic = getGuid();
+	var sub1, sub2, done = assert.async(), topic = getGuid();
 	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
 		cdiRequestBean.setSpecificTopicAccess(false).then(function () {
-			new Subscriber(topic).event(function (evt) {
+			sub1 = new Subscriber(topic).event(function (evt) {
 				assert.equal(evt.type, "RESULT", "Subscription to '"+topic+"' : ok.");
 				new Subscriber("mytopic").event(function (evt) {
-					assert.equal(evt.type, "FAULT", "Subscription to 'mytopic' failed : ok.");
+					assert.equal(evt.type, "FAULT", "Subscription to '"+"mytopic"+"' failed : ok.");
 					cdiRequestBean.setSpecificTopicAccess(true).then(function () {
-						sub = new Subscriber("mytopic").event(function (evt) {
+						sub2 = new Subscriber("mytopic").event(function (evt) {
 							assert.equal(evt.type, "RESULT", "Subscription to 'mytopic' : ok.");
-							sub.unsubscribe();
+							sub2.unsubscribe();
+							sub1.unsubscribe();
 							done();
 						});
 					});

@@ -13,8 +13,8 @@ import org.ocelotds.annotations.OcelotConfiguration;
  */
 public class RolesConfigurationProducer {
 
-	@Produces
-	@OcelotConfiguration(Constants.Options.DASHBOARD_ROLES)
+//	@Produces
+//	@OcelotConfiguration(Constants.Options.DASHBOARD_ROLES)
 	String getRole() {
 		return "USERR";
 	}

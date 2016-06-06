@@ -79,11 +79,23 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.5.1</version>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<configuration>
+							<compilerArgs>
+								<arg>-Ajsfwk=ng</arg>
+							</compilerArgs>
+						</configuration>
+					</execution>
+				</executions>
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
 					<compilerArgs>
-						<!--arg>-Ajsdir=/home/hhfrancois/NetBeansProjects/ocelotds.org/ocelotds.web/src/main/webapp/services</arg-->
 						<arg>-Aendorseddirs=${endorsed.dir}</arg>
 					</compilerArgs>
 				</configuration>

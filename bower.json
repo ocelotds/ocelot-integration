@@ -1,0 +1,16 @@
+{
+  "name": "ocelot-integration",
+  "version": "2.10.3",
+  "main": "path/to/main.css",
+  "ignore": [
+    ".jshintrc",
+    "**/*.txt",
+    "node_modules",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3",
+    "qunit": "^1.23.1"
+  }
+}

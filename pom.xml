@@ -79,19 +79,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.5.1</version>
-				<executions>
-					<execution>
-						<phase>compile</phase>
-						<goals>
-							<goal>compile</goal>
-						</goals>
-						<configuration>
-							<compilerArgs>
-								<arg>-Ajsfwk=ng</arg>
-							</compilerArgs>
-						</configuration>
-					</execution>
-				</executions>
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
@@ -129,6 +116,53 @@
 									<type>jar</type>
 								</artifactItem>
 							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>exec-maven-plugin</artifactId>
+				<groupId>org.codehaus.mojo</groupId>
+				<version>1.5.0</version>
+				<executions>
+					<!--execution>
+						<id>install npm</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>npm</executable>
+							<arguments>
+								<argument>install</argument>
+							</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install bower</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>bower</executable>
+							<arguments>
+								<argument>install</argument>
+							</arguments>
+						</configuration>
+					</execution-->
+					<execution>
+						<id>Gulp</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>gulp</executable>
+							<arguments>
+								<argument>--dev</argument>
+								<argument>--dist=target/ocelot-integration-${project.version}</argument>
+							</arguments>
 						</configuration>
 					</execution>
 				</executions>

@@ -373,7 +373,7 @@ QUnit.test(".methodRemoveAllCache()", function (assert) {
 QUnit.test(".onMessage()", function (assert) {
 	var timer, done = assert.async(), sub, topic = getGuid();
 	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
-		sub= new Subscriber(topic).event(function (evt) {
+		sub= subscriberFactory.createSubscriber(topic).event(function (evt) {
 			assert.equal(evt.type, "RESULT", "Subscription to '"+topic+"' : ok.");
 			assert.equal(evt.response, 1, "One subscriber.");
 			cdiRequestBean.publish(topic, 1).event(function (evt) {
@@ -419,7 +419,7 @@ QUnit.test(".onMessages()", function (assert) {
 	timer = setTimeout(checkResult, 50 * expected);
 	done = assert.async();
 	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
-		sub = new Subscriber(topic).event(function (evt) {
+		sub = subscriberFactory.createSubscriber(topic).event(function (evt) {
 			assert.equal(evt.type, "RESULT", "Subscription to '"+topic+"' : ok.");
 			cdiRequestBean.publish(topic, expected).event(function (evt) {
 				assert.equal(evt.type, "RESULT", "Call publish to '"+topic+"'(" + expected + ") method : ok.");
@@ -436,7 +436,7 @@ QUnit.test(".onMessages()", function (assert) {
 QUnit.test(".testGlobalTopic()", function (assert) {
 	var sub, timer, topic = "GlobalTopic", expected = "my message", done = assert.async();
 	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
-		sub = new Subscriber(topic).event(function (evt) {
+		sub = subscriberFactory.createSubscriber(topic).event(function (evt) {
 			assert.equal(evt.type, "RESULT", "Subscription to '" + topic + "' : ok.");
 			cdiRequestBean.sendToGlobalTopic(expected).event(function (evt) {
 				assert.equal(evt.type, "RESULT", "Call sendToGlobalTopic(" + expected + ") method : ok.");
@@ -457,7 +457,7 @@ QUnit.test(".testGlobalTopic()", function (assert) {
 QUnit.test(".testSpecificTopic()", function (assert) {
 	var sub, timer, topic = getGuid(), expected = "my message", done = assert.async();
 	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
-		sub = new Subscriber(topic).event(function (evt) {
+		sub = subscriberFactory.createSubscriber(topic).event(function (evt) {
 			assert.equal(evt.type, "RESULT", "Subscription to '" + topic + "' : ok.");
 			cdiRequestBean.sendToSpecificTopic(expected, topic).event(function (evt) {
 				assert.equal(evt.type, "RESULT", "Call sendToSpecificTopic(" + expected + ", " + topic + ")");
@@ -479,10 +479,10 @@ QUnit.test(".testSpecificTopic()", function (assert) {
 QUnit.test(".testGlobalTopicAccess()", function (assert) {
 	var sub, done = assert.async(), topic = getGuid();
 	cdiRequestBean.setGlobalTopicAccess(false).then(function () {
-		new Subscriber(topic).event(function (evt) {
+		subscriberFactory.createSubscriber(topic).event(function (evt) {
 			assert.equal(evt.type, "FAULT", "Subscription to '"+topic+"' failed : ok.");
 			cdiRequestBean.setGlobalTopicAccess(true).then(function() {
-				sub = new Subscriber(topic).event(function (evt) {
+				sub = subscriberFactory.createSubscriber(topic).event(function (evt) {
 						assert.equal(evt.type, "RESULT", "Subscription to '"+topic+"' : ok.");
 						sub.unsubscribe();
 						done();
@@ -495,12 +495,12 @@ QUnit.test(".testSpecificTopicAccess()", function (assert) {
 	var sub1, sub2, done = assert.async(), topic = getGuid();
 	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
 		cdiRequestBean.setSpecificTopicAccess(false).then(function () {
-			sub1 = new Subscriber(topic).event(function (evt) {
+			sub1 = subscriberFactory.createSubscriber(topic).event(function (evt) {
 				assert.equal(evt.type, "RESULT", "Subscription to '"+topic+"' : ok.");
-				new Subscriber("mytopic").event(function (evt) {
+				subscriberFactory.createSubscriber("mytopic").event(function (evt) {
 					assert.equal(evt.type, "FAULT", "Subscription to '"+"mytopic"+"' failed : ok.");
 					cdiRequestBean.setSpecificTopicAccess(true).then(function () {
-						sub2 = new Subscriber("mytopic").event(function (evt) {
+						sub2 = subscriberFactory.createSubscriber("mytopic").event(function (evt) {
 							assert.equal(evt.type, "RESULT", "Subscription to 'mytopic' : ok.");
 							sub2.unsubscribe();
 							sub1.unsubscribe();
@@ -516,10 +516,10 @@ QUnit.test(".testMultiSpecificTopicAccess('mytopic1')", function (assert) {
 	var sub, done = assert.async();
 	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
 		cdiRequestBean.setMultiSpecificTopicAccess(false).then(function () {
-			new Subscriber("mytopic1").event(function (evt) {
+			subscriberFactory.createSubscriber("mytopic1").event(function (evt) {
 				assert.equal(evt.type, "FAULT", "Subscription to 'mytopic1' failed : ok.");
 				cdiRequestBean.setMultiSpecificTopicAccess(true).then(function () {
-					sub = new Subscriber("mytopic1").event(function (evt) {
+					sub = subscriberFactory.createSubscriber("mytopic1").event(function (evt) {
 						assert.equal(evt.type, "RESULT", "Subscription to 'mytopic1' : ok.");
 						sub.unsubscribe();
 						done();
@@ -533,10 +533,10 @@ QUnit.test(".testMultiSpecificTopicAccess('mytopic2')", function (assert) {
 	var sub, done = assert.async();
 	cdiRequestBean.setGlobalTopicAccess(true).then(function () {
 		cdiRequestBean.setMultiSpecificTopicAccess(false).then(function () {
-			new Subscriber("mytopic2").event(function (evt) {
+			subscriberFactory.createSubscriber("mytopic2").event(function (evt) {
 				assert.equal(evt.type, "FAULT", "Subscription to 'mytopic2' failed : ok.");
 				cdiRequestBean.setMultiSpecificTopicAccess(true).then(function () {
-					sub = new Subscriber("mytopic2").event(function (evt) {
+					sub = subscriberFactory.createSubscriber("mytopic2").event(function (evt) {
 						assert.equal(evt.type, "RESULT", "Subscription to 'mytopic2' : ok.");
 						sub.unsubscribe();
 						done();
@@ -548,7 +548,7 @@ QUnit.test(".testMultiSpecificTopicAccess('mytopic2')", function (assert) {
 });
 QUnit.test(".testMessageAccess()", function (assert) {
 	var sub, done = assert.async();
-	sub = new Subscriber("string5topic").event(function (evt) {
+	sub = subscriberFactory.createSubscriber("string5topic").event(function (evt) {
 		cdiRequestBean.sendToString5topic("abc");
 		cdiRequestBean.sendToString5topic("abcdef");
 	}).message(function(msg) {
@@ -561,7 +561,7 @@ QUnit.test(".testMessageAccess()", function (assert) {
 });
 QUnit.test(".testMessageAccessBis()", function (assert) {
 	var sub, done = assert.async();
-	sub = new Subscriber("string5topicBis").event(function (evt) {
+	sub = subscriberFactory.createSubscriber("string5topicBis").event(function (evt) {
 		cdiRequestBean.sendToString5topicBis("abc");
 		cdiRequestBean.sendToString5topicBis("abcdef");
 	}).message(function(msg) {
@@ -574,7 +574,7 @@ QUnit.test(".testMessageAccessBis()", function (assert) {
 });
 QUnit.test(".testMessageAccess10()", function (assert) {
 	var sub, done = assert.async();
-	sub = new Subscriber("string10topic").event(function (evt) {
+	sub = subscriberFactory.createSubscriber("string10topic").event(function (evt) {
 		cdiRequestBean.sendToString10topic("abc");
 		cdiRequestBean.sendToString10topic("abcdefabcdef");
 	}).message(function(msg) {

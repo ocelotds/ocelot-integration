@@ -326,10 +326,10 @@ QUnit.test(".methodThatThrowException()", function (assert) {
 QUnit.test(".methodCached()", function (assert) {
 	var expected, done = assert.async();
 	cdiRequestBean.methodCached().event(function (evt) {
-		assert.equal(evt.type, "RESULT", "Receive result : " + expected + " from server and put in cache.");
-		expected = evt.response.length;
+		expected = evt.response;
+		assert.equal(evt.type, "RESULT", "Receive result : " + JSON.stringify(expected) + " from server and put in cache.");
 		cdiRequestBean.methodCached().event(function (evt) {
-			assert.equal(evt.response.length, expected, "Receive result from cache : " + evt.response.length);
+			assert.deepEqual(evt.response, expected, "Receive result from cache : " + JSON.stringify(evt.response)+" expected : "+JSON.stringify(expected));
 			done();
 		});
 	});
@@ -341,12 +341,114 @@ QUnit.test(".methodRemoveCache()", function (assert) {
 		expected = evt.response;
 		assert.equal(evt.type, "RESULT", "Receive result : " + JSON.stringify(expected) + " from server and put in cache.");
 		cdiRequestBean.methodCached().event(function (evt) {
-			assert.deepEqual(evt.response, expected, "Receive result from cache : " + JSON.stringify(evt.response));
+			assert.deepEqual(evt.response, expected, "Receive result from cache : " + JSON.stringify(evt.response)+" expected : "+JSON.stringify(expected));
 			cdiRequestBean.methodRemoveCache().event(function (evt) {
 				assert.equal(evt.type, "RESULT", "Cache removed.");
 				cdiRequestBean.methodCached().event(function (evt) {
-					assert.notEqual(evt.response, expected, "Receive result " + JSON.stringify(evt.response) + " from server and previously : "+JSON.stringify(expected));
+					assert.notDeepEqual(evt.response, expected, "Receive result " + JSON.stringify(evt.response) + " from server and previously : "+JSON.stringify(expected)+" must be different");
 					done();
+				});
+			});
+		});
+	});
+});
+QUnit.test(".methodRemovesCache()", function (assert) {
+	ocelotController.cacheManager.clearCache();
+	var expected, done = assert.async();
+	cdiRequestBean.methodCached().event(function (evt) {
+		expected = evt.response;
+		assert.equal(evt.type, "RESULT", "Receive result : " + JSON.stringify(expected) + " from server and put in cache.");
+		cdiRequestBean.methodCached().event(function (evt) {
+			assert.deepEqual(evt.response, expected, "Receive result from cache : " + JSON.stringify(evt.response)+" expected : "+JSON.stringify(expected));
+			cdiRequestBean.methodRemovesCache({"integer":4}).event(function (evt) { // arg not considerate for this method
+				assert.equal(evt.type, "RESULT", "Cache removed.");
+				cdiRequestBean.methodCached().event(function (evt) {
+					assert.notDeepEqual(evt.response, expected, "Receive result " + JSON.stringify(evt.response) + " from server and previously : "+JSON.stringify(expected)+" must be different");
+					done();
+				});
+			});
+		});
+	});
+});
+QUnit.test(".methodCachedWithArg()", function (assert) {
+	var expected, done = assert.async();
+	cdiRequestBean.methodCachedWithArg({"integer":5}).event(function (evt) {
+		expected = evt.response;
+		assert.equal(evt.type, "RESULT", "Receive result : " + JSON.stringify(expected) + " from server and put in cache.");
+		cdiRequestBean.methodCachedWithArg({"integer":5}).event(function (evt) {
+			assert.deepEqual(evt.response, expected, "Receive result from cache : " + JSON.stringify(evt.response)+" expected : "+JSON.stringify(expected));
+			cdiRequestBean.methodCachedWithArg({"integer":4}).event(function (evt) { // other key
+				assert.notDeepEqual(evt.response, expected, "Receive result " + JSON.stringify(evt.response) + " from server and previously : "+JSON.stringify(expected)+" must be different");
+				done();
+			});
+		});
+	});
+});
+QUnit.test(".methodRemoveCacheWithArg()", function (assert) {
+	ocelotController.cacheManager.clearCache();
+	var expected, done = assert.async();
+	cdiRequestBean.methodCachedWithArg({"integer":5}).event(function (evt) {
+		expected = evt.response;
+		assert.equal(evt.type, "RESULT", "Receive result : " + JSON.stringify(expected) + " from server and put in cache.");
+		cdiRequestBean.methodRemoveCacheWithArg(4, 1).event(function (evt) {
+			assert.equal(evt.type, "RESULT", "Another Cache removed.");
+			cdiRequestBean.methodCachedWithArg({"integer":5}).event(function (evt) {
+				assert.deepEqual(evt.response, expected, "Receive result from cache : " + JSON.stringify(evt.response)+" expected : "+JSON.stringify(expected));
+				cdiRequestBean.methodRemoveCacheWithArg(5, 1).event(function (evt) {
+					assert.equal(evt.type, "RESULT", "Cache removed.");
+					cdiRequestBean.methodCachedWithArg({"integer":5}).event(function (evt) {
+						assert.notDeepEqual(evt.response, expected, "Receive result " + JSON.stringify(evt.response) + " from server and previously : "+JSON.stringify(expected)+" must be different");
+						done();
+					});
+				});
+			});
+		});
+	});
+});
+QUnit.test(".methodRemoveAllCacheResultOfMethod()", function (assert) {
+	ocelotController.cacheManager.clearCache();
+	var expected1, expected2, done = assert.async();
+	cdiRequestBean.methodCachedWithArg({"integer":5}).event(function (evt) {
+		expected1 = evt.response;
+		assert.equal(evt.type, "RESULT", "Receive result : " + JSON.stringify(expected1) + " from server and put in cache.");
+		cdiRequestBean.methodCachedWithArg({"integer":5}).event(function (evt) {
+			assert.deepEqual(evt.response, expected1, "Receive result from cache : " + JSON.stringify(evt.response)+" expected : "+JSON.stringify(expected1));
+			cdiRequestBean.methodCachedWithArg({"integer":4}).event(function (evt) {
+				expected2 = evt.response;
+				assert.equal(evt.type, "RESULT", "Receive result : " + JSON.stringify(expected2) + " from server and put in cache.");
+				cdiRequestBean.methodCachedWithArg({"integer":4}).event(function (evt) {
+					assert.deepEqual(evt.response, expected2, "Receive result from cache : " + JSON.stringify(evt.response)+" expected : "+JSON.stringify(expected2));
+					cdiRequestBean.methodRemoveAllCacheResultOfMethod().event(function (evt) {
+						assert.equal(evt.type, "RESULT", "Cache removed.");
+						cdiRequestBean.methodCachedWithArg({"integer":5}).event(function (evt) {
+							assert.notDeepEqual(evt.response, expected1, "Receive result " + JSON.stringify(evt.response) + " from server and previously : "+JSON.stringify(expected1)+" must be different");
+							cdiRequestBean.methodCachedWithArg({"integer":4}).event(function (evt) {
+								assert.notDeepEqual(evt.response, expected2, "Receive result " + JSON.stringify(evt.response) + " from server and previously : "+JSON.stringify(expected2)+" must be different");
+								done();
+							});
+						});
+					});
+				});
+			});
+		});
+	});
+});
+QUnit.test(".methodRemovesCacheWithArgs()", function (assert) {
+	ocelotController.cacheManager.clearCache();
+	var expected, done = assert.async();
+	cdiRequestBean.methodCachedWithArg({"integer":5}).event(function (evt) {
+		expected = evt.response;
+		assert.equal(evt.type, "RESULT", "Receive result : " + JSON.stringify(expected) + " from server and put in cache.");
+		cdiRequestBean.methodRemovesCache({"integer":4}).event(function (evt) {
+			assert.equal(evt.type, "RESULT", "Another Cache removed.");
+			cdiRequestBean.methodCachedWithArg({"integer":5}).event(function (evt) {
+				assert.deepEqual(evt.response, expected, "Receive result from cache : " + JSON.stringify(evt.response)+" expected : "+JSON.stringify(expected));
+				cdiRequestBean.methodRemovesCache({"integer":5}).event(function (evt) {
+					assert.equal(evt.type, "RESULT", "Cache removed.");
+					cdiRequestBean.methodCachedWithArg({"integer":5}).event(function (evt) {
+						assert.notDeepEqual(evt.response, expected, "Receive result " + JSON.stringify(evt.response) + " from server and previously : "+JSON.stringify(expected)+" must be different");
+						done();
+					});
 				});
 			});
 		});
@@ -359,11 +461,11 @@ QUnit.test(".methodRemoveAllCache()", function (assert) {
 		expected = evt.response;
 		assert.equal(evt.type, "RESULT", "Receive result : " + JSON.stringify(expected) + " from server and put in cache.");
 		cdiRequestBean.methodCached().event(function (evt) {
-			assert.deepEqual(evt.response, expected, "Receive result from cache : " + JSON.stringify(evt.response));
+			assert.deepEqual(evt.response, expected, "Receive result from cache : " + JSON.stringify(evt.response)+" expected : "+JSON.stringify(expected));
 			cdiRequestBean.methodRemoveAllCache().event(function (evt) {
 				assert.equal(evt.type, "RESULT", "All Cache removed.");
 				cdiRequestBean.methodCached().event(function (evt) {
-					assert.notEqual(evt.response, expected, "Receive result " + JSON.stringify(evt.response) + " from server and previously : "+JSON.stringify(expected));
+					assert.notDeepEqual(evt.response, expected, "Receive result " + JSON.stringify(evt.response) + " from server and previously : "+JSON.stringify(expected)+" must be different");
 					done();
 				});
 			});
@@ -619,16 +721,16 @@ QUnit.test(".methodWithValidationArgumentsTest()", function (assert) {
 		var c = constraints[0];
 		if(c.index===0) {
 			assert.equal(c.index, 0);
-			assert.equal(c.name, 'str0');
+			assert.equal(c.name, 'arg0');
 			c = constraints[1];
 			assert.equal(c.index, 2);
-			assert.equal(c.name, 'str2');
+			assert.equal(c.name, 'arg2');
 		} else {
 			assert.equal(c.index, 2);
-			assert.equal(c.name, 'str2');
+			assert.equal(c.name, 'arg2');
 			c = constraints[1];
 			assert.equal(c.index, 0);
-			assert.equal(c.name, 'str0');
+			assert.equal(c.name, 'arg0');
 		}
 		done();
 	});
@@ -781,7 +883,7 @@ QUnit.test(".methodWithArgumentConstraintTest()", function (assert) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
-			assert.equal(constraints[0].name, "wc");
+			assert.equal(constraints[0].name, "arg0");
 			assert.equal(constraints[0].prop, "name");
 			done();
 		});
@@ -795,7 +897,7 @@ QUnit.test(".methodWithArgumentSize2_10Test()", function (assert) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
-			assert.equal(constraints[0].name, "str0");
+			assert.equal(constraints[0].name, "arg0");
 			done();
 		});
 	});
@@ -808,12 +910,12 @@ QUnit.test(".methodWithArgumentDigits3_2Test()", function (assert) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
-			assert.equal(constraints[0].name, "bd0");
+			assert.equal(constraints[0].name, "arg0");
 			cdiRequestBean.methodWithArgumentDigits3_2(432.3423434).event(function (evt) {
 				assert.equal(evt.type, "CONSTRAINT");
 				var constraints = evt.response;
 				assert.equal(constraints.length, 1);
-				assert.equal(constraints[0].name, "bd0");
+				assert.equal(constraints[0].name, "arg0");
 				done();
 			});
 		});

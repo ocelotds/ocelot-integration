@@ -38,6 +38,7 @@ import javax.validation.constraints.Null;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import org.ocelotds.annotations.JsCacheRemoves;
 import org.ocelotds.context.OcelotContext;
 import org.ocelotds.ocelot.topic.GlobalTopicAC;
 import org.ocelotds.ocelot.objects.MethodException;
@@ -251,12 +252,36 @@ public class CdiRequestBean {
 		return result;
 	}
 
+	@JsCacheResult(minute = 1, keys = {"r.integer"})
+	public Collection<Integer> methodCachedWithArg(Result r) {
+		Collection<Integer> result = new ArrayList<>();
+		for (int i = 0; i < 5; i++) {
+			result.add(random.nextInt(100));
+		}
+		return result;
+	}
+
 	@JsCacheRemove(cls = CdiRequestBean.class, methodName = "methodCached")
 	public void methodRemoveCache() {
 	}
 
+	@JsCacheRemove(cls = CdiRequestBean.class, methodName = "methodCachedWithArg", keys = {"i"})
+	public void methodRemoveCacheWithArg(int i, long l) {
+	}
+
+	@JsCacheRemove(cls = CdiRequestBean.class, methodName = "methodCachedWithArg", keys = {})
+	public void methodRemoveAllCacheResultOfMethod() {
+	}
+	
 	@JsCacheRemoveAll
 	public void methodRemoveAllCache() {
+	}
+
+	@JsCacheRemoves({
+		@JsCacheRemove(cls = CdiRequestBean.class, methodName = "methodCached", keys = {}),
+		@JsCacheRemove(cls = CdiRequestBean.class, methodName = "methodCachedWithArg", keys = {"r.integer"})
+	})
+	public void methodRemovesCache(Result r) {
 	}
 
 	@JsTopic(value = "GlobalTopic")

@@ -243,47 +243,6 @@ public class CdiRequestBean {
 		}
 	}
 
-	@JsCacheResult(minute = 1)
-	public Collection<Integer> methodCached() {
-		Collection<Integer> result = new ArrayList<>();
-		for (int i = 0; i < 5; i++) {
-			result.add(random.nextInt(100));
-		}
-		return result;
-	}
-
-	@JsCacheResult(minute = 1, keys = {"r.integer"})
-	public Collection<Integer> methodCachedWithArg(Result r) {
-		Collection<Integer> result = new ArrayList<>();
-		for (int i = 0; i < 5; i++) {
-			result.add(random.nextInt(100));
-		}
-		return result;
-	}
-
-	@JsCacheRemove(cls = CdiRequestBean.class, methodName = "methodCached")
-	public void methodRemoveCache() {
-	}
-
-	@JsCacheRemove(cls = CdiRequestBean.class, methodName = "methodCachedWithArg", keys = {"i"})
-	public void methodRemoveCacheWithArg(int i, long l) {
-	}
-
-	@JsCacheRemove(cls = CdiRequestBean.class, methodName = "methodCachedWithArg", keys = {})
-	public void methodRemoveAllCacheResultOfMethod() {
-	}
-	
-	@JsCacheRemoveAll
-	public void methodRemoveAllCache() {
-	}
-
-	@JsCacheRemoves({
-		@JsCacheRemove(cls = CdiRequestBean.class, methodName = "methodCached", keys = {}),
-		@JsCacheRemove(cls = CdiRequestBean.class, methodName = "methodCachedWithArg", keys = {"r.integer"})
-	})
-	public void methodRemovesCache(Result r) {
-	}
-
 	@JsTopic(value = "GlobalTopic")
 	public String sendToGlobalTopic(String message) {
 		return message;

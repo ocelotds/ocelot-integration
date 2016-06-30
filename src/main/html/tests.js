@@ -563,9 +563,28 @@ QUnit.test(".testIsUserInRoleFalse()", function (assert) {
 		done();
 	});
 });	
+QUnit.test(".getFile()", function (assert) {
+	var done = assert.async();
+	cdiRequestBean.getFile("/tmp/file").event(function (evt) {
+		assert.equal(evt.type, "RESULT");
+		var file = evt.response;
+		assert.equal(file.filename, "file");
+		var exists = file.exists;
+		cdiRequestBean.exists(file).event(function (evt) {
+			assert.equal(evt.type, "RESULT");
+			var res = evt.response;
+			assert.equal(res, exists);
+			done();
+		});
+	});
+});
+/**
+ * WithConstraintBean
+ */
+QUnit.module("withConstraintBean");
 QUnit.test(".methodWithValidationArgumentsTest()", function (assert) {
 	var done = assert.async();
-	cdiRequestBean.methodWithValidationArguments(null, "foo", null).event(function (evt) {
+	withConstraintBean.methodWithValidationArguments(null, "foo", null).event(function (evt) {
 		assert.equal(evt.type, "CONSTRAINT");
 		var constraints = evt.response;
 		assert.equal(constraints.length, 2);
@@ -588,9 +607,9 @@ QUnit.test(".methodWithValidationArgumentsTest()", function (assert) {
 });	
 QUnit.test(".methodWithArgumentNotNullTest()", function (assert) {
 	var done = assert.async();
-	cdiRequestBean.methodWithArgumentNotNull("foo").event(function (evt) {
+	withConstraintBean.methodWithArgumentNotNull("foo").event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentNotNull(null).event(function (evt) {
+		withConstraintBean.methodWithArgumentNotNull(null).event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
@@ -600,9 +619,9 @@ QUnit.test(".methodWithArgumentNotNullTest()", function (assert) {
 });	
 QUnit.test(".methodWithArgumentNullTest()", function (assert) {
 	var done = assert.async();
-	cdiRequestBean.methodWithArgumentNull(null).event(function (evt) {
+	withConstraintBean.methodWithArgumentNull(null).event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentNull("foo").event(function (evt) {
+		withConstraintBean.methodWithArgumentNull("foo").event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
@@ -612,9 +631,9 @@ QUnit.test(".methodWithArgumentNullTest()", function (assert) {
 });	
 QUnit.test(".methodWithArgumentMaxTest()", function (assert) {
 	var done = assert.async();
-	cdiRequestBean.methodWithArgumentMax(8).event(function (evt) {
+	withConstraintBean.methodWithArgumentMax(8).event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentMax(15).event(function (evt) {
+		withConstraintBean.methodWithArgumentMax(15).event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
@@ -624,9 +643,9 @@ QUnit.test(".methodWithArgumentMaxTest()", function (assert) {
 });	
 QUnit.test(".methodWithArgumentMinTest()", function (assert) {
 	var done = assert.async();
-	cdiRequestBean.methodWithArgumentMin(15).event(function (evt) {
+	withConstraintBean.methodWithArgumentMin(15).event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentMin(8).event(function (evt) {
+		withConstraintBean.methodWithArgumentMin(8).event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
@@ -636,9 +655,9 @@ QUnit.test(".methodWithArgumentMinTest()", function (assert) {
 });	
 QUnit.test(".methodWithArgumentFalseTest()", function (assert) {
 	var done = assert.async();
-	cdiRequestBean.methodWithArgumentFalse(false).event(function (evt) {
+	withConstraintBean.methodWithArgumentFalse(false).event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentFalse(true).event(function (evt) {
+		withConstraintBean.methodWithArgumentFalse(true).event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
@@ -648,9 +667,9 @@ QUnit.test(".methodWithArgumentFalseTest()", function (assert) {
 });	
 QUnit.test(".methodWithArgumentTrueTest()", function (assert) {
 	var done = assert.async();
-	cdiRequestBean.methodWithArgumentTrue(true).event(function (evt) {
+	withConstraintBean.methodWithArgumentTrue(true).event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentTrue(false).event(function (evt) {
+		withConstraintBean.methodWithArgumentTrue(false).event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
@@ -664,9 +683,9 @@ QUnit.test(".methodWithArgumentFutureTest()", function (assert) {
 	var past = new Date();
 	fut.setMonth(fut.getMonth()+1);
 	past.setMonth(past.getMonth()-1);
-	cdiRequestBean.methodWithArgumentFuture(fut.getTime()).event(function (evt) {
+	withConstraintBean.methodWithArgumentFuture(fut.getTime()).event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentFuture(past.getTime()).event(function (evt) {
+		withConstraintBean.methodWithArgumentFuture(past.getTime()).event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
@@ -680,9 +699,9 @@ QUnit.test(".methodWithArgumentPastTest()", function (assert) {
 	var past = new Date();
 	fut.setMonth(fut.getMonth()+1);
 	past.setMonth(past.getMonth()-1);
-	cdiRequestBean.methodWithArgumentPast(past.getTime()).event(function (evt) {
+	withConstraintBean.methodWithArgumentPast(past.getTime()).event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentPast(fut.getTime()).event(function (evt) {
+		withConstraintBean.methodWithArgumentPast(fut.getTime()).event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
@@ -692,9 +711,9 @@ QUnit.test(".methodWithArgumentPastTest()", function (assert) {
 });	
 QUnit.test(".methodWithArgumentDecimalMaxTest()", function (assert) {
 	var done = assert.async();
-	cdiRequestBean.methodWithArgumentDecimalMax(20).event(function (evt) {
+	withConstraintBean.methodWithArgumentDecimalMax(20).event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentDecimalMax(60).event(function (evt) {
+		withConstraintBean.methodWithArgumentDecimalMax(60).event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
@@ -704,9 +723,9 @@ QUnit.test(".methodWithArgumentDecimalMaxTest()", function (assert) {
 });	
 QUnit.test(".methodWithArgumentDecimalMinTest()", function (assert) {
 	var done = assert.async();
-	cdiRequestBean.methodWithArgumentDecimalMin(60).event(function (evt) {
+	withConstraintBean.methodWithArgumentDecimalMin(60).event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentDecimalMin(20).event(function (evt) {
+		withConstraintBean.methodWithArgumentDecimalMin(20).event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
@@ -716,9 +735,9 @@ QUnit.test(".methodWithArgumentDecimalMinTest()", function (assert) {
 });	
 QUnit.test(".methodWithArgumentPatternTest()", function (assert) {
 	var done = assert.async();
-	cdiRequestBean.methodWithArgumentPattern("123456").event(function (evt) {
+	withConstraintBean.methodWithArgumentPattern("123456").event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentPattern("123a456").event(function (evt) {
+		withConstraintBean.methodWithArgumentPattern("123a456").event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
@@ -728,9 +747,9 @@ QUnit.test(".methodWithArgumentPatternTest()", function (assert) {
 });
 QUnit.test(".methodWithArgumentConstraintTest()", function (assert) {
 	var done = assert.async();
-	cdiRequestBean.methodWithArgumentConstraint({"name":"foo"}).event(function (evt) {
+	withConstraintBean.methodWithArgumentConstraint({"name":"foo"}).event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentConstraint({}).event(function (evt) {
+		withConstraintBean.methodWithArgumentConstraint({}).event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
@@ -742,9 +761,9 @@ QUnit.test(".methodWithArgumentConstraintTest()", function (assert) {
 });
 QUnit.test(".methodWithArgumentSize2_10Test()", function (assert) {
 	var done = assert.async();
-	cdiRequestBean.methodWithArgumentSize2_10("azerty").event(function (evt) {
+	withConstraintBean.methodWithArgumentSize2_10("azerty").event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentSize2_10("qwertyuiop^").event(function (evt) {
+		withConstraintBean.methodWithArgumentSize2_10("qwertyuiop^").event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
@@ -755,14 +774,14 @@ QUnit.test(".methodWithArgumentSize2_10Test()", function (assert) {
 });
 QUnit.test(".methodWithArgumentDigits3_2Test()", function (assert) {
 	var done = assert.async();
-	cdiRequestBean.methodWithArgumentDigits3_2(123.45).event(function (evt) {
+	withConstraintBean.methodWithArgumentDigits3_2(123.45).event(function (evt) {
 		assert.equal(evt.type, "RESULT");
-		cdiRequestBean.methodWithArgumentDigits3_2(1432432.34).event(function (evt) {
+		withConstraintBean.methodWithArgumentDigits3_2(1432432.34).event(function (evt) {
 			assert.equal(evt.type, "CONSTRAINT");
 			var constraints = evt.response;
 			assert.equal(constraints.length, 1);
 			assert.equal(constraints[0].name, "arg0");
-			cdiRequestBean.methodWithArgumentDigits3_2(432.3423434).event(function (evt) {
+			withConstraintBean.methodWithArgumentDigits3_2(432.3423434).event(function (evt) {
 				assert.equal(evt.type, "CONSTRAINT");
 				var constraints = evt.response;
 				assert.equal(constraints.length, 1);

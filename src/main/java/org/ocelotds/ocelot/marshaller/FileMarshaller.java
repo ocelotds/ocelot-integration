@@ -20,7 +20,10 @@ public class FileMarshaller implements IJsonMarshaller<File>{
 
 	@Override
 	public String toJson(File obj) throws JsonMarshallingException {
-		return "{\"filename\":\""+obj.getName()+"\",\"path\":\""+obj.getAbsolutePath()+"\",\"exists\":"+obj.exists()+"}";
+		if(null != obj) {
+			return "{\"filename\":\""+obj.getName()+"\",\"path\":\""+obj.getAbsolutePath()+"\",\"exists\":"+obj.exists()+"}";
+		}
+		return "{\"filename\":\"unknown\",\"path\":\"null\",\"exists\":false}";
 	}
 
 	@Override
